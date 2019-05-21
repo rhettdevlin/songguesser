@@ -103,6 +103,8 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0-alpha.1/handlebars.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
     <script>
+      
+      //Global Variables
       var songsArray;
       var songName = '';
       var currentSong;
@@ -143,7 +145,7 @@
         } else {
           if (access_token) {
            
-
+           //ajax call to get user token
             $.ajax({
                 url: 'https://api.spotify.com/v1/me',
                 headers: {
@@ -162,6 +164,7 @@
                 }
             });
 
+            //ajax call to get users top tracks
             $.ajax({
               url: 'https://api.spotify.com/v1/me/top/tracks?time_range=short_term&limit=50',
                headers: { 'Authorization': 'Bearer ' + access_token },
@@ -177,10 +180,7 @@
                     nextSong();
                   }
                   songPreviewLink = currentSong.preview_url;
-                  songName = currentSong.name;
-                
-                  
-
+                  songName = currentSong.name; 
                   console.log(currentSong);
                   //compare(guessedName, name);
                   document.getElementById('songPreview').src = songPreviewLink;
@@ -212,12 +212,14 @@
         }
       })();
 
+      //parse JSON object
       function parse(stringVal){
         var string = JSON.stringify(stringVal);
         var objectValue = JSON.parse(string);
         return objectValue;
       }    
 
+      //shuffle array
       function shuffleArray(a) {
         var j, x, i;
         for (i = a.length - 1; i > 0; i--) {
@@ -228,18 +230,25 @@
        }
         return a;
      }
-    
+     
+     /*
+    Go to next song if there is more left in the song array
+    Update HTML with new songs preview link
+     */
      function nextSong(){
       if (currentSongIndex < 50){
           currentSongIndex = currentSongIndex + 1;
           currentSong = songsArray[currentSongIndex];
+          
           songName = currentSong.name
-
+          //set song name to lower case for easy comparison to guess answer
           lowercaseActual = songName.toLowerCase();
+          
           console.log(currentSong);
           console.log(songName);
           console.log("Lowercase name", lowercaseActual);
           console.log(currentSongIndex);
+          //Some songs on spotify don't have preview links so we need to skip these
           if (!currentSong.preview_url) {
                     console.log("Preview Link Null");
                     nextSong();
@@ -260,7 +269,7 @@
       }
     }
    
-
+    //Get users guessed name and remove symbols from actual name to make comparison easy
       function getGuessedName() {
           guessedName = document.getElementById('guessedName').value;
           var lowercaseguess = guessedName.toLowerCase();
@@ -299,6 +308,7 @@
 
       }
 
+      //Function that uses levenshtein distance to tell how similar strings are to each other
       function lev(a, b) {
           var t = [], u, i, j, m = a.length, n = b.length;
           if (!m) { return n; }
@@ -311,11 +321,13 @@
           } return u[n];
       }
 
+      //Display new song info 
       function giveUp(){
         document.getElementById("songInfo").innerHTML = '';
         document.getElementById("songInfo").innerText = songInfo();   
       }
 
+      //Parse song info and insert into one string for easy displaying
       function songInfo() {
         str = songName + " by ";
         for( var i = 0; i < currentSong.artists.length; i++) {
